@@ -2,8 +2,9 @@ import cv2
 import numpy as np
 # bu satırı yorum satırı olarak ekledim değişiklik
 # Kamera nesnesini başlat
-# bi değişiklik daha
+# bi değişiklik d
 cap = cv2.VideoCapture(0)
+print("Kamera başlatıldı")
 
 while True:
     # Kameradan bir kare al
