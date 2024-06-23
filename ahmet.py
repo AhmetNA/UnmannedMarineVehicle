@@ -62,11 +62,11 @@ while True:
     
     # Yoğunlukları yazdır
     if max_red_area > 1000:
-        print("Kırmızı")
+        print("Kirmizi")
     elif max_green_area > 1000:
-        print("Yeşil")
+        print("Yesil")
     elif max_yellow_area > 1000:
-        print("Sarı")
+        print("Sari")
     else:
         print("Renk Yok")
     # Sonuçları göster
