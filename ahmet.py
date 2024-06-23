@@ -45,26 +45,30 @@ while True:
     green_intensity = cv2.countNonZero(mask_green)
     yellow_intensity = cv2.countNonZero(mask_yellow)
     
-    # En büyük alanların piksel sayısını bul
-    def max_contour_area(mask):
+    # En büyük alanların piksel sayısını bul ve dikdörtgen içine al
+    def max_contour_area_and_draw(mask, color):
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if contours:
-            return max(cv2.contourArea(contour) for contour in contours)
+            max_contour = max(contours, key=cv2.contourArea)
+            max_area = cv2.contourArea(max_contour)
+            x, y, w, h = cv2.boundingRect(max_contour)
+            cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
+            return max_area
         return 0
     
-    max_red_area = max_contour_area(mask_red)
-    max_green_area = max_contour_area(mask_green)
-    max_yellow_area = max_contour_area(mask_yellow)
+    max_red_area = max_contour_area_and_draw(mask_red, (0, 0, 255)) # Kırmızı dikdörtgen
+    max_green_area = max_contour_area_and_draw(mask_green, (0, 255, 0)) # Yeşil dikdörtgen
+    max_yellow_area = max_contour_area_and_draw(mask_yellow, (0, 255, 255)) # Sarı dikdörtgen
     
     # Yoğunlukları yazdır
     if max_red_area > 1000:
-        print('Kırmızı')
+        print("Kırmızı")
     elif max_green_area > 1000:
-        print('Yeşil')
+        print("Yeşil")
     elif max_yellow_area > 1000:
-        print('Sarı')
+        print("Sarı")
     else:
-        print('Renk Yok')    
+        print("Renk Yok")
     # Sonuçları göster
     cv2.imshow('Frame', frame)
     cv2.imshow('Red Mask', red_output)
