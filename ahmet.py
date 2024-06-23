@@ -57,9 +57,14 @@ while True:
     max_yellow_area = max_contour_area(mask_yellow)
     
     # Yoğunlukları yazdır
-    print(f'Red: {red_intensity}, Green: {green_intensity}, Yellow: {yellow_intensity}')
-    print(f'Max Red Area: {max_red_area}, Max Green Area: {max_green_area}, Max Yellow Area: {max_yellow_area}')
-    
+    if max_red_area > 1000:
+        print('Kırmızı')
+    elif max_green_area > 1000:
+        print('Yeşil')
+    elif max_yellow_area > 1000:
+        print('Sarı')
+    else:
+        print('Renk Yok')    
     # Sonuçları göster
     cv2.imshow('Frame', frame)
     cv2.imshow('Red Mask', red_output)
