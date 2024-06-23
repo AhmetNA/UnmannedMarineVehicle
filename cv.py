@@ -1,3 +1,4 @@
+#degisiklikbennesli
 import cv2
 import numpy as np
 # bu satırı yorum satırı olarak ekledim değişiklik
