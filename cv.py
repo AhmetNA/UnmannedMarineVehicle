@@ -1,3 +1,5 @@
+#ama ben bunu direkt github ğzerinden beyza sayfadan text gibi yazıyorum
+
 import cv2
 import numpy as np
 # bu satırı yorum satırı olarak ekledim değişiklik
