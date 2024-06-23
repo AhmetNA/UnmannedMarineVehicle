@@ -1,12 +1,7 @@
-#ama ben bunu direkt github ğzerinden beyza sayfadan text gibi yazıyorum
-
 import cv2
 import numpy as np
-# bu satırı yorum satırı olarak ekledim değişiklik
 # Kamera nesnesini başlat
-# ahmet son güncelleme
 cap = cv2.VideoCapture(0)
-print("Kamera başlatıldı")
 
 while True:
     # Kameradan bir kare al
@@ -17,7 +12,7 @@ while True:
     
     # Görüntüyü HSV renk alanına çevir
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    
+    # renk aralıkları düzgün değil ayalaranacak daha koyu renkler de ayırt edilebilmeli
     # Renk aralıklarını belirle
     # Kırmızı renk için
     lower_red = np.array([0, 120, 70])
