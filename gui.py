@@ -35,7 +35,7 @@ label_frame_veri = label_frame_olusturma(master, "Veri", 0.04, top_margin / canv
 
 # Araç Paneli (başka bir örnek için)
 label_frame_arac = label_frame_olusturma(master, "Araç", 0.6, 0.04, 0.34, 0.1)
-label_arac = tk.Label(label_frame_arac, text="Jetson Nano    192.168.1.1")
+label_arac = tk.Label(label_frame_arac, text="arac ismi icin simdilik bos birakilmistir")
 label_arac.pack(padx=15, pady=5, anchor=tk.NW)
 
 # Sonuç Paneli (veriler burada gösterilecek)
@@ -48,12 +48,43 @@ label_frame_fonksiyon = label_frame_olusturma(master, "Fonksiyon", 0.6, 0.6, 0.3
 def btnCamera():
     start_video_capture()
 
-# Diğer buton fonksiyonları
+# Diğer buton fonksiyonları    
 def btnBatma():
-    messagebox.showinfo("Bilgi", "Batma butonuna tikandi")
+    messagebox.showinfo("Bilgi", "Batma butonuna tikandi")    
+def btnCikma():
+    messagebox.showinfo("Bilgi", "Çıkma butonuna tıklandı")
 
-buton_metinleri = ["Kamera Aç", "Batma"]
-buton_fonksiyonlari = [btnCamera, btnBatma]
+def btnSag():
+    messagebox.showinfo("Bilgi", "Sağ butonuna tıklandı")
+
+def btnSol():
+    messagebox.showinfo("Bilgi", "Sol butonuna tıklandı")
+
+def btnIleri():
+    messagebox.showinfo("Bilgi", "İleri butonuna tıklandı")
+
+def btnGeri():
+    messagebox.showinfo("Bilgi", "Geri butonuna tıklandı")
+
+def btnReset():
+    messagebox.showinfo("Bilgi", "Reset butonuna tıklandı")
+
+def btnArm():
+    messagebox.showinfo("Bilgi", "Arm butonuna tıklandı")
+
+def btnDisarm():
+    messagebox.showinfo("Bilgi", "Disarm butonuna tıklandı")
+
+def btnStabilize():
+    messagebox.showinfo("Bilgi", "Stabilize butonuna tıklandı")
+
+def btnAuto():
+    messagebox.showinfo("Bilgi", "Auto butonuna tıklandı")
+
+# Butonları yerleştirme
+buton_metinleri = ["Batma", "Çıkma", "Sağ", "Sol", "İleri", "Geri", "Kamera", "Reset", "Arm", "Disarm", "Stabilize", "Auto"]
+buton_fonksiyonlari = [btnBatma, btnCikma, btnSag, btnSol, btnIleri, btnGeri, btnCamera, btnReset, btnArm, btnDisarm, btnStabilize, btnAuto]
+
 
 for i, metin in enumerate(buton_metinleri):
     row, column = divmod(i, 2)
