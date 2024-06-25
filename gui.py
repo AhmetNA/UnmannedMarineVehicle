@@ -123,7 +123,7 @@ def start_video_capture():
         frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        video_filename = f"video_kayit_{now}.avi"
+        video_filename = f"Akriha_Control_{now}.avi"
         fourcc = cv2.VideoWriter_fourcc(*"XVID")
         out = cv2.VideoWriter(video_filename, fourcc, 20.0, (frame_width, frame_height))
 
