@@ -34,7 +34,6 @@ label_frame_arac = label_frame_olusturma(master, "Araç", 0.6, 0.04, 0.34, 0.1)
 label_arac = tk.Label(label_frame_arac, text="arac ismi icin simdilik bos birakilmistir")
 label_arac.pack(padx=15, pady=5, anchor=tk.NW)
 
-
 # Sonuç Paneli (kameradan çıkarılan veriler burada yazdırılacak)
 label_frame_sonuc = label_frame_olusturma(master, "Sonuç", 0.6, 0.2, 0.35, 0.5)
 
@@ -96,6 +95,7 @@ def update_sonuc_panel(text):
 
     label = tk.Label(label_frame_sonuc, text=text)
     label.pack()
+
 def max_contour_area_and_draw(mask, color, frame):
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
@@ -106,6 +106,23 @@ def max_contour_area_and_draw(mask, color, frame):
         return max_area, mask[y:y + h, x:x + w].sum() // 255
     return 0, 0
 
+def draw_lines_between_centers(mask, frame, color):
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    centers = []
+
+    for contour in contours:
+        area = cv2.contourArea(contour)
+        if area > 300:
+            M = cv2.moments(contour)
+            if M['m00'] != 0:
+                cx = int(M['m10'] / M['m00'])
+                cy = int(M['m01'] / M['m00'])
+                centers.append((cx, cy))
+                cv2.circle(frame, (cx, cy), 5, color, -1)
+
+    for i in range(len(centers)):
+        for j in range(i + 1, len(centers)):
+            cv2.line(frame, centers[i], centers[j], color, 2)
 
 # Video akışını başlatacak fonksiyon
 def start_video_capture():
@@ -132,7 +149,7 @@ def start_video_capture():
 
             if ret:
                 hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-                
+
                 # Kırmızı renk için maske
                 lower_red1 = np.array([0, 120, 70])
                 upper_red1 = np.array([10, 255, 255])
@@ -151,15 +168,27 @@ def start_video_capture():
                 lower_yellow = np.array([20, 100, 100])
                 upper_yellow = np.array([30, 255, 255])
                 mask_yellow = cv2.inRange(hsv, lower_yellow, upper_yellow)
-                
+
                 red_output = cv2.bitwise_and(frame, frame, mask=mask_red)
                 green_output = cv2.bitwise_and(frame, frame, mask=mask_green)
                 yellow_output = cv2.bitwise_and(frame, frame, mask=mask_yellow)
 
+                # Maskeler gösterimi
+                cv2.imshow("Yeşil Maske", mask_green)
+                cv2.imshow("Kırmızı Maske", mask_red)
+                cv2.imshow("Sari Maske", mask_yellow)
+
                 max_red_area, red_pixels = max_contour_area_and_draw(mask_red, (0, 0, 255), frame)
                 max_green_area, green_pixels = max_contour_area_and_draw(mask_green, (0, 255, 0), frame)
                 max_yellow_area, yellow_pixels = max_contour_area_and_draw(mask_yellow, (0, 255, 255), frame)
-                
+
+                # Renk kontrol ve orta nokta tespiti
+                if max_red_area > 300:
+                    draw_lines_between_centers(mask_red, frame, (0, 0, 255))
+
+                if max_green_area > 300:
+                    draw_lines_between_centers(mask_green, frame, (0, 255, 0))
+
                 if max_red_area > 1000:
                     color_detected = f"Kirmizi: {red_pixels} piksel"
                 elif max_green_area > 1000:
@@ -168,7 +197,7 @@ def start_video_capture():
                     color_detected = f"Sari: {yellow_pixels} piksel"
                 else:
                     color_detected = "Renk Yok"
-                
+
                 # Görüntüyü "Veri" panelinde göster
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 img = Image.fromarray(frame_rgb)
@@ -198,12 +227,8 @@ def start_video_capture():
         cap.release()
         out.release()  # Video kaydını tamamla
 
-    threading.Thread(target=video_thread, daemon=True).start()
+    t = threading.Thread(target=video_thread)
+    t.start()
 
-
-
-
-
-
-# Tkinter ana döngüsü
+# Uygulamayı başlat
 master.mainloop()
