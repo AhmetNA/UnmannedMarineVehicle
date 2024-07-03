@@ -7,95 +7,94 @@ import threading
 import time
 from datetime import datetime
 
-# Tkinter ana penceresi
+# Tkinter main window
 master = tk.Tk()
 
-# Başlangıç penceresi boyutları
-canvas_genislik = 1000
-canvas_yukseklik = 450
-panel_genislik = 150
-panel_yukseklik = 250
+# Initial window dimensions
+canvas_width = 1000
+canvas_height = 450
+panel_width = 150
+panel_height = 250
 panel_margin = 10
 top_margin = 20
 
-# Tkinter ana penceresi
-master.title("Kamera ve Veri Okuma Uygulamasi")
+# Tkinter main window
+master.title("Camera and Data Reading Application")
 
-# Kanvas oluşturma
-canvas = tk.Canvas(master, width=canvas_genislik, height=canvas_yukseklik)
+# Create Canvas
+canvas = tk.Canvas(master, width=canvas_width, height=canvas_height)
 canvas.pack()
 
-def label_frame_olusturma(master, text, relx, rely, relwidth, relheight):
+def label_frame_creation(master, text, relx, rely, relwidth, relheight):
     label_frame = LabelFrame(master, text=text)
     label_frame.place(relx=relx, rely=rely, relwidth=relwidth, relheight=relheight)
     return label_frame
 
-# Veri Paneli (Kamera görüntüsü burada olacak)
-label_frame_veri = label_frame_olusturma(master, "Veri", 0.04, top_margin / canvas_yukseklik, 0.5, 0.65)
+# Data Panel (camera image will be here)
+label_frame_data = label_frame_creation(master, "Data", 0.04, top_margin / canvas_height, 0.5, 0.65)
 
-# Araç Paneli (başka bir örnek için)
-label_frame_arac = label_frame_olusturma(master, "Araç", 0.6, 0.04, 0.34, 0.1)
-label_arac = tk.Label(label_frame_arac, text="arac ismi icin simdilik bos birakilmistir")
-label_arac.pack(padx=15, pady=5, anchor=tk.NW)
+# Tool Panel (for another example)
+label_frame_tool = label_frame_creation(master, "Tool", 0.6, 0.04, 0.34, 0.1)
+label_tool = tk.Label(label_frame_tool, text="tool name is temporarily left blank")
+label_tool.pack(padx=15, pady=5, anchor=tk.NW)
 
-# Sonuç Paneli (veriler burada gösterilecek)
-label_frame_sonuc = label_frame_olusturma(master, "Sonuç", 0.6, 0.2, 0.35, 0.5)
+# Result Panel (data will be displayed here)
+label_frame_result = label_frame_creation(master, "Result", 0.6, 0.2, 0.35, 0.5)
 
-# Fonksiyon Paneli
-label_frame_fonksiyon = label_frame_olusturma(master, "Fonksiyon", 0.6, 0.6, 0.35, 0.3)
+# Function Panel
+label_frame_function = label_frame_creation(master, "Function", 0.6, 0.6, 0.35, 0.3)
 
-# Kamera açma butonu
+# Camera start button
 def btnCamera():
     start_video_capture()
 
-# Diğer buton fonksiyonları    
+# Other button functions    
 def btnBatma():
-    messagebox.showinfo("Bilgi", "Batma butonuna tikandi")    
+    messagebox.showinfo("Information", "Batma button clicked")    
 def btnCikma():
-    messagebox.showinfo("Bilgi", "Çıkma butonuna tıklandı")
+    messagebox.showinfo("Information", "Cikma button clicked")
 
 def btnSag():
-    messagebox.showinfo("Bilgi", "Sağ butonuna tıklandı")
+    messagebox.showinfo("Information", "Sag button clicked")
 
 def btnSol():
-    messagebox.showinfo("Bilgi", "Sol butonuna tıklandı")
+    messagebox.showinfo("Information", "Sol button clicked")
 
 def btnIleri():
-    messagebox.showinfo("Bilgi", "İleri butonuna tıklandı")
+    messagebox.showinfo("Information", "Ileri button clicked")
 
 def btnGeri():
-    messagebox.showinfo("Bilgi", "Geri butonuna tıklandı")
+    messagebox.showinfo("Information", "Geri button clicked")
 
 def btnReset():
-    messagebox.showinfo("Bilgi", "Reset butonuna tıklandı")
+    messagebox.showinfo("Information", "Reset button clicked")
 
 def btnArm():
-    messagebox.showinfo("Bilgi", "Arm butonuna tıklandı")
+    messagebox.showinfo("Information", "Arm button clicked")
 
 def btnDisarm():
-    messagebox.showinfo("Bilgi", "Disarm butonuna tıklandı")
+    messagebox.showinfo("Information", "Disarm button clicked")
 
 def btnStabilize():
-    messagebox.showinfo("Bilgi", "Stabilize butonuna tıklandı")
+    messagebox.showinfo("Information", "Stabilize button clicked")
 
 def btnAuto():
-    messagebox.showinfo("Bilgi", "Auto butonuna tıklandı")
+    messagebox.showinfo("Information", "Auto button clicked")
 
-# Butonları yerleştirme
-buton_metinleri = ["Batma", "Çıkma", "Sağ", "Sol", "İleri", "Geri", "Kamera", "Reset", "Arm", "Disarm", "Stabilize", "Auto"]
-buton_fonksiyonlari = [btnBatma, btnCikma, btnSag, btnSol, btnIleri, btnGeri, btnCamera, btnReset, btnArm, btnDisarm, btnStabilize, btnAuto]
+# Placing buttons
+button_texts = ["Batma", "Cikma", "Sag", "Sol", "Ileri", "Geri", "Camera", "Reset", "Arm", "Disarm", "Stabilize", "Auto"]
+button_functions = [btnBatma, btnCikma, btnSag, btnSol, btnIleri, btnGeri, btnCamera, btnReset, btnArm, btnDisarm, btnStabilize, btnAuto]
 
-
-for i, metin in enumerate(buton_metinleri):
+for i, text in enumerate(button_texts):
     row, column = divmod(i, 2)
-    buton = tk.Button(label_frame_fonksiyon, text=metin, width=10, height=1, background='White', command=buton_fonksiyonlari[i])
-    buton.grid(row=row, column=column, padx=40, pady=3)
+    button = tk.Button(label_frame_function, text=text, width=10, height=1, background='White', command=button_functions[i])
+    button.grid(row=row, column=column, padx=40, pady=3)
 
-# Sonuç paneline veri yazdırmak için fonksiyon
-def update_sonuc_panel(text):
-    for widget in label_frame_sonuc.winfo_children():
+# Function to write data to the result panel
+def update_result_panel(text):
+    for widget in label_frame_result.winfo_children():
         widget.destroy()
-    label = tk.Label(label_frame_sonuc, text=text)
+    label = tk.Label(label_frame_result, text=text)
     label.pack()
 
 def max_contour_center(mask, color, frame):
@@ -111,14 +110,18 @@ def max_contour_center(mask, color, frame):
                 cy = int(M["m01"] / M["m00"])
                 centers.append((cx, cy))
 
-    centers_sorted = sorted(centers, key=lambda c: c[0])[:2]  # En büyük iki merkezi bul
+    centers_sorted = sorted(centers, key=lambda c: c[1])[:2]  # En büyük iki merkezi bul
 
     # En büyük iki merkez arasında çizgi çiz
     if len(centers_sorted) == 2:
         cv2.line(frame, centers_sorted[0], centers_sorted[1], color, 2)
 
-        # İki merkez arasında siyah çizgi çiz
-        cv2.line(frame, centers_sorted[0], centers_sorted[1], (0, 0, 0), 5)
+        # İki merkez arasındaki ortalama noktayı bul
+        midpoint = ((centers_sorted[0][0] + centers_sorted[0][1]) // 2,
+                    (centers_sorted[1][0] + centers_sorted[1][1]) // 2)
+
+        # Ortaya yatay siyah çizgi çiz
+        cv2.line(frame, (0, midpoint[1]), (frame.shape[1], midpoint[1]), (0, 0, 0), 5)
 
     # Merkezlerin etrafına yuvarlak çiz
     for center in centers:
@@ -126,16 +129,15 @@ def max_contour_center(mask, color, frame):
 
     return centers_sorted
 
-
 def start_video_capture():
-    label_veri = tk.Label(label_frame_veri)
-    label_veri.pack()
+    label_data = tk.Label(label_frame_data)
+    label_data.pack()
 
     def video_thread():
         cap = cv2.VideoCapture(0)
 
         if not cap.isOpened():
-            messagebox.showerror("Hata", "Kamera bulunamadi veya acilamadi!")
+            messagebox.showerror("Error", "Camera not found or could not be opened!")
             return
 
         frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -151,7 +153,7 @@ def start_video_capture():
             if ret:
                 hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
                 
-                # Kırmızı renk için maske
+                # Red color mask
                 lower_red1 = np.array([0, 120, 70])
                 upper_red1 = np.array([10, 255, 255])
                 mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
@@ -160,24 +162,30 @@ def start_video_capture():
                 mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
                 mask_red = mask_red1 + mask_red2
 
-                # Yeşil renk için maske
+                # Green color mask
                 lower_green = np.array([36, 100, 100])
                 upper_green = np.array([86, 255, 255])
                 mask_green = cv2.inRange(hsv, lower_green, upper_green)
 
-                # Kırmızı merkezleri bul ve çizgi çiz
+                # Find red centers and draw lines
                 red_centers = max_contour_center(mask_red, (0, 0, 255), frame)
 
-                # Yeşil merkezleri bul ve çizgi çiz
+                # Find green centers and draw lines
                 green_centers = max_contour_center(mask_green, (0, 255, 0), frame)
+
+                # Draw a black line between the centers if both are found
+                if len(red_centers) == 2 and len(green_centers) == 2:
+                    mid_point_red = ((red_centers[0][0] + red_centers[1][0]) // 2, (red_centers[0][1] + red_centers[1][1]) // 2)
+                    mid_point_green = ((green_centers[0][0] + green_centers[1][0]) // 2, (green_centers[0][1] + green_centers[1][1]) // 2)
+                    cv2.line(frame, mid_point_red, mid_point_green, (0, 0, 0), 5)
 
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 img = Image.fromarray(frame_rgb)
                 imgtk = ImageTk.PhotoImage(img)
 
                 def update_gui():
-                    label_veri.imgtk = imgtk
-                    label_veri.config(image=imgtk)
+                    label_data.imgtk = imgtk
+                    label_data.config(image=imgtk)
 
                 master.after(0, update_gui)
                 out.write(frame)
@@ -185,12 +193,12 @@ def start_video_capture():
             else:
                 break
 
-            time.sleep(0.05)  # Görüntü güncellemeleri arasında küçük bir bekleme süresi
+            time.sleep(0.05)  # Small delay between frame updates
 
         cap.release()
         out.release()
 
     threading.Thread(target=video_thread, daemon=True).start()
 
-# Tkinter ana döngüsü
+# Tkinter main loop
 master.mainloop()

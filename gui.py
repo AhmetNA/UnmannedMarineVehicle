@@ -169,7 +169,7 @@ def start_video_capture():
                 else:
                     color_detected = "Renk Yok"
 
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_xBGR2RGB)
                 img = Image.fromarray(frame_rgb)
                 imgtk = ImageTk.PhotoImage(img)
 
