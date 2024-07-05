@@ -130,9 +130,9 @@ def detect_circles_and_draw(frame):
     yellow_mask = cv2.inRange(hsv, yellow_ranges[0][0], yellow_ranges[0][1])
 
     masks = [
-        (red_mask, (0, 0, 255), "Kırmızı"),
+        (red_mask, (0, 0, 255), "Kirmizi"),
         (green_mask, (0, 255, 0), "Yeşil"),
-        (yellow_mask, (0, 255, 255), "Sarı")
+        (yellow_mask, (0, 255, 255), "Sari")
     ]
 
     for mask, color, color_name in masks:
