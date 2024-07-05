@@ -1,204 +1,97 @@
 import cv2
 import numpy as np
-import tkinter as tk
-from tkinter import LabelFrame, messagebox
-from PIL import Image, ImageTk
-import threading
-import time
-from datetime import datetime
 
-# Tkinter main window
-master = tk.Tk()
+# Kamera başlatma
+cap = cv2.VideoCapture(0)
 
-# Initial window dimensions
-canvas_width = 1000
-canvas_height = 450
-panel_width = 150
-panel_height = 250
-panel_margin = 10
-top_margin = 20
+def renk_tespiti(frame, lower_color, upper_color):
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, lower_color, upper_color)
+    return mask
 
-# Tkinter main window
-master.title("Camera and Data Reading Application")
+def kontur_bul(mask, min_area):
+    contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    max_area = 0
+    second_max_area = 0
+    max_center = None
+    second_max_center = None
 
-# Create Canvas
-canvas = tk.Canvas(master, width=canvas_width, height=canvas_height)
-canvas.pack()
-
-def label_frame_creation(master, text, relx, rely, relwidth, relheight):
-    label_frame = LabelFrame(master, text=text)
-    label_frame.place(relx=relx, rely=rely, relwidth=relwidth, relheight=relheight)
-    return label_frame
-
-# Data Panel (camera image will be here)
-label_frame_data = label_frame_creation(master, "Data", 0.04, top_margin / canvas_height, 0.5, 0.65)
-
-# Tool Panel (for another example)
-label_frame_tool = label_frame_creation(master, "Tool", 0.6, 0.04, 0.34, 0.1)
-label_tool = tk.Label(label_frame_tool, text="tool name is temporarily left blank")
-label_tool.pack(padx=15, pady=5, anchor=tk.NW)
-
-# Result Panel (data will be displayed here)
-label_frame_result = label_frame_creation(master, "Result", 0.6, 0.2, 0.35, 0.5)
-
-# Function Panel
-label_frame_function = label_frame_creation(master, "Function", 0.6, 0.6, 0.35, 0.3)
-
-# Camera start button
-def btnCamera():
-    start_video_capture()
-
-# Other button functions    
-def btnBatma():
-    messagebox.showinfo("Information", "Batma button clicked")    
-def btnCikma():
-    messagebox.showinfo("Information", "Cikma button clicked")
-
-def btnSag():
-    messagebox.showinfo("Information", "Sag button clicked")
-
-def btnSol():
-    messagebox.showinfo("Information", "Sol button clicked")
-
-def btnIleri():
-    messagebox.showinfo("Information", "Ileri button clicked")
-
-def btnGeri():
-    messagebox.showinfo("Information", "Geri button clicked")
-
-def btnReset():
-    messagebox.showinfo("Information", "Reset button clicked")
-
-def btnArm():
-    messagebox.showinfo("Information", "Arm button clicked")
-
-def btnDisarm():
-    messagebox.showinfo("Information", "Disarm button clicked")
-
-def btnStabilize():
-    messagebox.showinfo("Information", "Stabilize button clicked")
-
-def btnAuto():
-    messagebox.showinfo("Information", "Auto button clicked")
-
-# Placing buttons
-button_texts = ["Batma", "Cikma", "Sag", "Sol", "Ileri", "Geri", "Camera", "Reset", "Arm", "Disarm", "Stabilize", "Auto"]
-button_functions = [btnBatma, btnCikma, btnSag, btnSol, btnIleri, btnGeri, btnCamera, btnReset, btnArm, btnDisarm, btnStabilize, btnAuto]
-
-for i, text in enumerate(button_texts):
-    row, column = divmod(i, 2)
-    button = tk.Button(label_frame_function, text=text, width=10, height=1, background='White', command=button_functions[i])
-    button.grid(row=row, column=column, padx=40, pady=3)
-
-# Function to write data to the result panel
-def update_result_panel(text):
-    for widget in label_frame_result.winfo_children():
-        widget.destroy()
-    label = tk.Label(label_frame_result, text=text)
-    label.pack()
-
-def max_contour_center(mask, color, frame):
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    centers = []
-    
     for contour in contours:
         area = cv2.contourArea(contour)
-        if area > 1000:
+        if area > min_area:
             M = cv2.moments(contour)
-            if M["m00"] != 0:
-                cx = int(M["m10"] / M["m00"])
-                cy = int(M["m01"] / M["m00"])
-                centers.append((cx, cy))
+            if M['m00'] != 0:
+                cX = int(M['m10'] / M['m00'])
+                cY = int(M['m01'] / M['m00'])
+                if area > max_area:
+                    second_max_area = max_area
+                    second_max_center = max_center
+                    max_area = area
+                    max_center = (cX, cY)
+                elif area > second_max_area:
+                    second_max_area = area
+                    second_max_center = (cX, cY)
 
-    centers_sorted = sorted(centers, key=lambda c: c[1])[:2]  # En büyük iki merkezi bul
+    return max_center, second_max_center
 
-    # En büyük iki merkez arasında çizgi çiz
-    if len(centers_sorted) == 2:
-        cv2.line(frame, centers_sorted[0], centers_sorted[1], color, 2)
+lower_red = np.array([0, 120, 70])
+upper_red = np.array([10, 255, 255])
+lower_green = np.array([40, 40, 40])
+upper_green = np.array([70, 255, 255])
 
-        # İki merkez arasındaki ortalama noktayı bul
-        midpoint = ((centers_sorted[0][0] + centers_sorted[0][1]) // 2,
-                    (centers_sorted[1][0] + centers_sorted[1][1]) // 2)
+min_red_area = 300  # Kontur alanı için minimum değer
+min_green_area = 300  # Kontur alanı için minimum değer
 
-        # Ortaya yatay siyah çizgi çiz
-        cv2.line(frame, (0, midpoint[1]), (frame.shape[1], midpoint[1]), (0, 0, 0), 5)
+while True:
+    ret, frame = cap.read()
+    
+    if not ret:
+        print("Kamera görüntüsü alınamadı!")
+        break
 
-    # Merkezlerin etrafına yuvarlak çiz
-    for center in centers:
-        cv2.circle(frame, center, 5, color, -1)
+    # Kırmızı ve yeşil topları tespit et
+    red_mask = renk_tespiti(frame, lower_red, upper_red)
+    green_mask = renk_tespiti(frame, lower_green, upper_green)
 
-    return centers_sorted
+    # Topların merkez noktalarını bul (belirli bir alan sınırıyla)
+    max_center_red, second_max_center_red = kontur_bul(red_mask, min_red_area)
+    max_center_green, second_max_center_green = kontur_bul(green_mask, min_green_area)  
 
-def start_video_capture():
-    label_data = tk.Label(label_frame_data)
-    label_data.pack()
+    # Eğer kırmızı ve yeşil toplar bulunamazsa devam et
+    if not max_center_red or not max_center_green:
+        continue
 
-    def video_thread():
-        cap = cv2.VideoCapture(0)
+    # En büyük kırmızı ve yeşil konturlar arasındaki orta noktayı bul
+    mid_way_max = ((max_center_red[0] + max_center_green[0]) // 2, (max_center_red[1] + max_center_green[1]) // 2)
+    # İkinci en büyük kırmızı ve yeşil konturlar arasındaki orta noktayı bul
+    if second_max_center_red and second_max_center_green:
+        mid_way_second_max = ((second_max_center_red[0] + second_max_center_green[0]) // 2, (second_max_center_red[1] + second_max_center_green[1]) // 2)
+    else:
+        mid_way_second_max = None
 
-        if not cap.isOpened():
-            messagebox.showerror("Error", "Camera not found or could not be opened!")
-            return
+    # Rota çizimi için noktaları birleştir
+    if mid_way_second_max:
+        route_points = [mid_way_max, mid_way_second_max]
+        cv2.line(frame, route_points[0], route_points[1], (0, 255, 0), 2)
+    else:
+        route_points = [mid_way_max]
 
-        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        video_filename = f"Akriha_Control_{now}.avi"
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
-        out = cv2.VideoWriter(video_filename, fourcc, 20.0, (frame_width, frame_height))
+    # Tüm merkez noktalarını ve rotayı çiz
+    for center in [max_center_red, second_max_center_red, max_center_green, second_max_center_green]:
+        if center:
+            cv2.circle(frame, center, 5, (255, 0, 0), -1)
+    
+    if mid_way_second_max:
+        cv2.circle(frame, mid_way_second_max, 5, (0, 255, 255), -1)
+    cv2.circle(frame, mid_way_max, 5, (0, 255, 0), -1)
 
-        while cap.isOpened():
-            ret, frame = cap.read()
+    # Sonuçları göster
+    cv2.imshow("Frame", frame)
 
-            if ret:
-                hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-                
-                # Red color mask
-                lower_red1 = np.array([0, 120, 70])
-                upper_red1 = np.array([10, 255, 255])
-                mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
-                lower_red2 = np.array([170, 120, 70])
-                upper_red2 = np.array([180, 255, 255])
-                mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
-                mask_red = mask_red1 + mask_red2
+    # Çıkış için 'q' tuşuna bas
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
-                # Green color mask
-                lower_green = np.array([36, 100, 100])
-                upper_green = np.array([86, 255, 255])
-                mask_green = cv2.inRange(hsv, lower_green, upper_green)
-
-                # Find red centers and draw lines
-                red_centers = max_contour_center(mask_red, (0, 0, 255), frame)
-
-                # Find green centers and draw lines
-                green_centers = max_contour_center(mask_green, (0, 255, 0), frame)
-
-                # Draw a black line between the centers if both are found
-                if len(red_centers) == 2 and len(green_centers) == 2:
-                    mid_point_red = ((red_centers[0][0] + red_centers[1][0]) // 2, (red_centers[0][1] + red_centers[1][1]) // 2)
-                    mid_point_green = ((green_centers[0][0] + green_centers[1][0]) // 2, (green_centers[0][1] + green_centers[1][1]) // 2)
-                    cv2.line(frame, mid_point_red, mid_point_green, (0, 0, 0), 5)
-
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                img = Image.fromarray(frame_rgb)
-                imgtk = ImageTk.PhotoImage(img)
-
-                def update_gui():
-                    label_data.imgtk = imgtk
-                    label_data.config(image=imgtk)
-
-                master.after(0, update_gui)
-                out.write(frame)
-
-            else:
-                break
-
-            time.sleep(0.05)  # Small delay between frame updates
-
-        cap.release()
-        out.release()
-
-    threading.Thread(target=video_thread, daemon=True).start()
-
-# Tkinter main loop
-master.mainloop()
+# Kamerayı serbest bırak ve pencereleri kapat
+cap.release()
+cv2.destroyAllWindows()
