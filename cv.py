@@ -1,3 +1,4 @@
+# ida3 teki boş yerleri sildim
 import cv2
 import numpy as np
 import tkinter as tk
@@ -122,6 +123,8 @@ def find_mid_way(center1, center2):
     mid_y = (center1[1] + center2[1]) // 2
     return (mid_x, mid_y)
 
+    
+
 def calculate_distance(point1, point2):
     return np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
 
@@ -130,7 +133,16 @@ def start_video_capture():
     label_veri = tk.Label(label_frame_veri)
     label_veri.pack()
 
+         
+                
+
+
+
+
+
+
     def video_thread():
+        
         cap = cv2.VideoCapture(0)
 
         if not cap.isOpened():
@@ -145,8 +157,9 @@ def start_video_capture():
         out = cv2.VideoWriter(video_filename, fourcc, 20.0, (frame_width, frame_height))
 
         while cap.isOpened():
+            
             ret, frame = cap.read()
-
+            
             if ret:
                 hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
                 
@@ -192,6 +205,12 @@ def start_video_capture():
                 else:
                     dist_red_yellow = 0
                 
+                # alttaki 4 satır gemi kendini ortalaması için  yapıldı
+                if green_center != (0, 0) and red_center != (0, 0):
+                    dist_green_red = calculate_distance(green_center, red_center)
+                else:
+                    dist_green_red = 0
+
                 if green_center != (0, 0) and yellow_center != (0, 0):
                     dist_green_yellow = calculate_distance(green_center, yellow_center)
                 else:
@@ -206,6 +225,241 @@ def start_video_capture():
                 if mid_way != (0, 0):  # Eğer geçerli bir orta nokta varsa
                     cv2.circle(frame, mid_way, 10, (255, 0, 255), -1)
 
+                # gemi ortalama
+               #orta yol sarı ile kırmızı ve ya sarı ile yeşil arasında olan olacağı için  bu satırı gerek yok
+                orta_yol=find_mid_way(red_center, green_center)
+                
+                # kamera orjini
+                orjin=(322,240)
+                cv2.circle(frame,orjin,5,(0,0,0),-1)
+                
+                if orta_yol != (0, 0):  
+                    cv2.circle(frame, orta_yol, 10, (255, 0, 0), -1)
+                
+                x,y=orta_yol
+                a,b=mid_way
+                
+                # daha fazla ayrıntı eklendi, artık topları teker teker seçebiliyor
+                def gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin):
+                    orjin_x_range = range(orjin[0] - 300, orjin[0] + 300)
+                    
+                    red_in_range = red_center[0] in orjin_x_range
+                    green_in_range = green_center[0] in orjin_x_range
+                    yellow_in_range = yellow_center[0] in orjin_x_range
+
+                    if red_in_range and green_in_range and yellow_in_range:
+                        gemi_uyarısı_metin = "üç topu da görüyorum"
+                    elif yellow_in_range and green_in_range:
+                        gemi_uyarısı_metin = "sarı ve yeşili görüyorum"
+                    elif red_in_range and yellow_in_range:
+                        gemi_uyarısı_metin = "kırmızı ve sarıyı görüyorum"
+                    elif red_in_range:
+                        gemi_uyarısı_metin = "kırmızı topu görüyorum"
+                    elif yellow_in_range:
+                        gemi_uyarısı_metin = "sarı topu görüyorum"
+                    elif green_in_range:
+                        gemi_uyarısı_metin = "yeşil topu görüyorum"
+                    else:
+                        gemi_uyarısı_metin = "üç topu da görmüyorum"
+                    
+                    return gemi_uyarısı_metin
+
+
+                  
+                
+                # geminin kendini 3 topa göre ortalaması için
+                """def öneri1_fn(x, orjin):
+                    if gemi_uyarısı_metin=="üç topu da görüyorum":
+                        if x > 20 + orjin[0]:
+                            öneri1_metin="gemiyi sağa kır"
+                            return "gemiyi sağa kır"
+                        elif x < orjin[0] - 20:
+                            öneri1_metin = "gemiyi sola kır"
+                            return "gemiyi sola kır"    
+                        else:
+                            öneri1_metin = "gemi ortalı"
+                            return "gemi ortalı"
+                    else:
+                        öneri1_metin="daha üç topu göremedik sakin..." 
+                        return "daha üç topu göremedik sakin..."        
+                """
+                  
+                # geminin kendini en geniş yola göre ortalaması
+                def öneri2_fn(a,orjin):
+                    if gemi_uyarısı_metin=="üç topu da görüyorum":
+                        if a>20+orjin[0]:
+                            öneri2_metin="gemiyi sağa kır"
+                            return "gemiyi sağa kır"
+                        elif a<orjin[0]-20:
+                            öneri2_metin="gemiyi sola kır"
+                            return "gemiyi sola kır"
+                        else:
+                            öneri2_metin="dümdüz devam et"
+                            return "dümdüz devam et"  
+                    else:
+                        öneri2_metin="daha üç topu göremedik sakin..."
+                        return "daha üç topu göremedik sakin..."
+                
+                
+                # gemi 3 topu da göremeyince 3 topu da görmesi için yapabileceği hamlelerin fonksiyonu.
+                # bu fonksiyonda problem var(görüntü donması yaşanıyor. özellikle ilk if else'lerin içine bir daha if else yapısı yazınca). bu fonksiyonun altındaki help bölümündeki fonksiyon da bu fonksiyon ile aynı amaçlı.
+                def öneri3_fn(yellow_center, green_center, red_center, orjin, gemi_uyarısı_metin):
+                    while True:
+                        gemi_uyarısı_metin = gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin)
+
+                        
+
+                        if gemi_uyarısı_metin == "üç topu da görüyorum":
+                            öneri3_metin = "sıkıntı yok devam1"
+                            return öneri3_metin
+                        
+                        elif gemi_uyarısı_metin == "üç topu da görmüyorum":
+                            öneri3_metin = "üç topu da görmüyorum sakin..."
+                            return öneri3_metin
+
+                        elif gemi_uyarısı_metin == "sarı ve yeşili görüyorum":
+                            öneri3_metin = "gemiyi sağa kır1"
+                            gemi_uyarısı_metin = gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin)
+                            if gemi_uyarısı_metin == "üç topu da görüyorum":
+                                öneri3_metin = "sıkıntı yok2"
+                                # return öneri3_metin
+                            elif gemi_uyarısı_metin == "yeşil topu görüyorum":
+                                öneri3_metin = "gemiyi sola kır yanlış geldik.1"
+                            return öneri3_metin
+                            # Ekstra kontrol eklenebilir
+
+                        elif gemi_uyarısı_metin == "kırmızı ve sarıyı görüyorum":
+                            öneri3_metin = "gemiyi sağa kır2"
+                            gemi_uyarısı_metin = gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin)
+                            if gemi_uyarısı_metin == "üç topu da görüyorum":
+                                öneri3_metin = "sıkıntı yok3"
+                                # return öneri3_metin
+                            elif gemi_uyarısı_metin == "üç topu da görmüyorum":
+                                öneri3_metin = "gemiyi sola kır yanlış geldik.2"
+                               
+                            return öneri3_metin
+                            # Ekstra kontrol eklenebilir
+
+                        elif gemi_uyarısı_metin == "kırmızı topu görüyorum":
+                            öneri3_metin = "gemiyi sağa kır3"
+                            gemi_uyarısı_metin = gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin)
+                            if gemi_uyarısı_metin == "üç topu da görüyorum":
+                                öneri3_metin = "sıkıntı yok4"
+                                # return öneri3_metin
+                            elif gemi_uyarısı_metin == "üç topu da görmüyorum":
+                                öneri3_metin = "gemiyi sola kır yanlış geldik.3"
+                                
+                            return öneri3_metin
+                            # Ekstra kontrol eklenebilir
+
+                        elif gemi_uyarısı_metin == "yeşil topu görüyorum":
+                            öneri3_metin = "gemiyi sağa kır4"
+                            gemi_uyarısı_metin = gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin)
+                            if gemi_uyarısı_metin == "üç topu da görüyorum":
+                                öneri3_metin = "sıkıntı yok5"
+                                # return öneri3_metin
+                            elif gemi_uyarısı_metin == "üç topu da görmüyorum":
+                                öneri3_metin = "gemiyi sola kır yanlış geldik.4"
+                            
+                            return öneri3_metin
+                            # Ekstra kontrol eklenebilir
+                        
+                        
+                        
+                        else:
+                            öneri3_metin = "PROBLEM VAR"
+                            return öneri3_metin
+
+                    return öneri3_metin, gemi_uyarısı_metin
+                
+                """
+                def öneri3_fn(yellow_center, green_center, red_center, orjin, gemi_uyarısı_metin):
+                    while True:
+                        
+                        gemi_uyarısı_metin = gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin)
+
+                        if gemi_uyarısı_metin == "üç topu da görmüyorum":
+                            öneri3_metin = "üç topu da görmüyorum sakin..."
+                            return öneri3_metin
+
+                        elif gemi_uyarısı_metin == "üç topu da görüyorum":
+                            öneri3_metin = "sıkıntı yok devam1"
+                            return öneri3_metin
+
+                        elif gemi_uyarısı_metin == "sarı ve yeşili görüyorum":
+                            öneri3_metin = "gemiyi sağa kır1"
+                            gemi_uyarısı_metin = gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin)
+                            if gemi_uyarısı_metin == "üç topu da görüyorum":
+                                öneri3_metin = "sıkıntı yok2"
+                                return öneri3_metin
+                            elif gemi_uyarısı_metin == "yeşil topu görüyorum":
+                                öneri3_metin = "gemiyi sola kır yanlış geldik.1"
+                                return öneri3_metin
+                            
+
+                        elif gemi_uyarısı_metin == "kırmızı ve sarıyı görüyorum":
+                            öneri3_metin = "gemiyi sağa kır2"
+                            gemi_uyarısı_metin = gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin)
+                            if gemi_uyarısı_metin == "üç topu da görüyorum":
+                                öneri3_metin = "sıkıntı yok3"
+                                return öneri3_metin
+                            elif gemi_uyarısı_metin == "üç topu da görmüyorum":
+                                öneri3_metin = "gemiyi sola kır yanlış geldik.2"
+                                return öneri3_metin
+                            
+
+                        elif gemi_uyarısı_metin == "kırmızı topu görüyorum":
+                            öneri3_metin = "gemiyi sağa kır3"
+                            gemi_uyarısı_metin = gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin)
+                            if gemi_uyarısı_metin == "üç topu da görüyorum":
+                                öneri3_metin = "sıkıntı yok4"
+                                return öneri3_metin
+                            elif gemi_uyarısı_metin == "üç topu da görmüyorum":
+                                öneri3_metin = "gemiyi sola kır yanlış geldik.3"
+                                return öneri3_metin
+
+                        elif gemi_uyarısı_metin == "yeşil topu görüyorum":
+                            öneri3_metin = "gemiyi sağa kır4"
+                            gemi_uyarısı_metin = gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin)
+                            if gemi_uyarısı_metin == "üç topu da görüyorum":
+                                öneri3_metin = "sıkıntı yok5"
+                                return öneri3_metin
+                            elif gemi_uyarısı_metin == "üç topu da görmüyorum":
+                                öneri3_metin = "gemiyi sola kır yanlış geldik.4"
+                                return öneri3_metin
+
+                        else:
+                            öneri3_metin = "PROBLEM VAR"
+                            return öneri3_metin
+
+                    return öneri3_metin,gemi_uyarısı_metin
+                """        
+            
+
+                
+
+
+
+                
+
+                
+                gemi_uyarısı_metin="birazdan gemi uyarısı geliyor..."
+                öneri1_metin="birazdan öneri1 geliyor..."
+                öneri2_metin="birazdan öneri2 geliyor..."
+                # öneri3_metin="birazdan öneri3 geliyor..."
+                gemi_uyarısı_metin= gemi_görüyor_fn(red_center,green_center,yellow_center,orjin,gemi_uyarısı_metin)
+                    
+                #öneri1_metin= öneri1_fn(x,orjin)
+                öneri2_metin= öneri2_fn(a,orjin)
+                öneri3_metin =öneri3_fn(yellow_center,green_center,red_center,orjin,gemi_uyarısı_metin)
+              
+                   
+                
+                        
+                        
+                    
+                        
+                
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 img = Image.fromarray(frame_rgb)
                 imgtk = ImageTk.PhotoImage(img)
@@ -214,7 +468,7 @@ def start_video_capture():
                     label_veri.imgtk = imgtk
                     label_veri.config(image=imgtk)
                     height, width, _ = frame.shape
-                    update_sonuc_panel(f"Görüntü Boyutu: {width}x{height}\n{color_detected}")
+                    update_sonuc_panel(f"Görüntü Boyutu: {width}x{height}\n{color_detected}\n{gemi_uyarısı_metin}\n{öneri1_metin}\n{öneri2_metin}\n{öneri3_metin}")
 
                 master.after(0, update_gui)
                 out.write(frame)
