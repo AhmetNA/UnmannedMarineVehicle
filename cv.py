@@ -242,7 +242,7 @@ def start_video_capture():
                     return warning_txt
 
                 # geminin kendini 3 topa göre ortalaması için
-                                
+                def check_all_balls()              
                   
                 # geminin kendini en geniş yola göre ortalaması
                 def öneri2_fn(a,orjin):
