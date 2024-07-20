@@ -225,49 +225,24 @@ def start_video_capture():
                 a,b=mid_way
                 
                 # daha fazla ayrıntı eklendi, artık topları teker teker seçebiliyor
-                def gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, gemi_uyarısı_metin):
+                def gemi_görüyor_fn(red_center, green_center, yellow_center, orjin, warning_txt):
                     orjin_x_range = range(orjin[0] - 300, orjin[0] + 300)
                     
                     red_in_range = red_center[0] in orjin_x_range
                     green_in_range = green_center[0] in orjin_x_range
                     yellow_in_range = yellow_center[0] in orjin_x_range
 
-                    if red_in_range and green_in_range and yellow_in_range:
-                        gemi_uyarısı_metin = "üç topu da görüyorum"
-                    elif yellow_in_range and green_in_range:
-                        gemi_uyarısı_metin = "sarı ve yeşili görüyorum"
-                    elif red_in_range and yellow_in_range:
-                        gemi_uyarısı_metin = "kırmızı ve sarıyı görüyorum"
-                    elif red_in_range:
-                        gemi_uyarısı_metin = "kırmızı topu görüyorum"
-                    elif yellow_in_range:
-                        gemi_uyarısı_metin = "sarı topu görüyorum"
-                    elif green_in_range:
-                        gemi_uyarısı_metin = "yeşil topu görüyorum"
-                    else:
-                        gemi_uyarısı_metin = "üç topu da görmüyorum"
+                    if red_in_range: 
+                        warning_txt = "kirmizi gorunuyor"
+                    if green_in_range:
+                        warning_txt += " yesil gozukuyor"
+                    if yellow_in_range: 
+                        warning_txt += " sari gorunuyor"
                     
-                    return gemi_uyarısı_metin
+                    return warning_txt
 
-
-                  
-                
                 # geminin kendini 3 topa göre ortalaması için
-                """def öneri1_fn(x, orjin):
-                    if gemi_uyarısı_metin=="üç topu da görüyorum":
-                        if x > 20 + orjin[0]:
-                            öneri1_metin="gemiyi sağa kır"
-                            return "gemiyi sağa kır"
-                        elif x < orjin[0] - 20:
-                            öneri1_metin = "gemiyi sola kır"
-                            return "gemiyi sola kır"    
-                        else:
-                            öneri1_metin = "gemi ortalı"
-                            return "gemi ortalı"
-                    else:
-                        öneri1_metin="daha üç topu göremedik sakin..." 
-                        return "daha üç topu göremedik sakin..."        
-                """
+                                
                   
                 # geminin kendini en geniş yola göre ortalaması
                 def öneri2_fn(a,orjin):
