@@ -25,7 +25,6 @@ master.title("Kamera ve Veri Okuma Uygulamasi")
 # Kanvas oluşturma
 canvas = tk.Canvas(master, width=canvas_genislik, height=canvas_yukseklik)
 canvas.pack()
-
 def label_frame_olusturma(master, text, relx, rely, relwidth, relheight):
     label_frame = LabelFrame(master, text=text)
     label_frame.place(relx=relx, rely=rely, relwidth=relwidth, relheight=relheight)
@@ -82,6 +81,9 @@ def btnStabilize():
 def btnAuto():
     messagebox.showinfo("Bilgi", "Auto butonuna tıklandı")
 
+# Color limit
+color_limit = 500
+
 # Butonları yerleştirme
 buton_metinleri = ["Batma", "Çıkma", "Sağ", "Sol", "İleri", "Geri", "Kamera", "Reset", "Arm", "Disarm", "Stabilize", "Auto"]
 buton_fonksiyonlari = [btnBatma, btnCikma, btnSag, btnSol, btnIleri, btnGeri, btnCamera, btnReset, btnArm, btnDisarm, btnStabilize, btnAuto]
@@ -110,7 +112,7 @@ def find_mid_of_counters(mask, color, frame):
             cX, cY = 0, 0  # Default value if division by zero would occur
         max_area = cv2.contourArea(max_contour)
         x, y, w, h = cv2.boundingRect(max_contour)
-        if max_area > 500:
+        if max_area > color_limit:
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
             return max_area, mask[y:y + h, x:x + w].sum() // 255, (cX, cY)
         else:
@@ -132,15 +134,6 @@ def calculate_distance(point1, point2):
 def start_video_capture():
     label_veri = tk.Label(label_frame_veri)
     label_veri.pack()
-
-         
-                
-
-
-
-
-
-
     def video_thread():
         
         cap = cv2.VideoCapture(0)
@@ -190,11 +183,11 @@ def start_video_capture():
                 max_green_area, green_pixels, green_center = find_mid_of_counters(mask_green, (0, 255, 0), frame)
                 max_yellow_area, yellow_pixels, yellow_center = find_mid_of_counters(mask_yellow, (0, 255, 255), frame)
                 
-                if max_red_area > 1000:
+                if max_red_area > color_limit:
                     color_detected = f"Kirmizi: {red_pixels} piksel"
-                elif max_green_area > 1000:
+                elif max_green_area > color_limit:
                     color_detected = f"Yesil: {green_pixels} piksel"
-                elif max_yellow_area > 1000:
+                elif max_yellow_area > color_limit:
                     color_detected = f"Sari: {yellow_pixels} piksel"
                 else:
                     color_detected = "Renk Yok"
@@ -224,19 +217,11 @@ def start_video_capture():
                 
                 if mid_way != (0, 0):  # Eğer geçerli bir orta nokta varsa
                     cv2.circle(frame, mid_way, 10, (255, 0, 255), -1)
-
-                # gemi ortalama
-               #orta yol sarı ile kırmızı ve ya sarı ile yeşil arasında olan olacağı için  bu satırı gerek yok
-                orta_yol=find_mid_way(red_center, green_center)
                 
                 # kamera orjini
                 orjin=(322,240)
                 cv2.circle(frame,orjin,5,(0,0,0),-1)
-                
-                if orta_yol != (0, 0):  
-                    cv2.circle(frame, orta_yol, 10, (255, 0, 0), -1)
-                
-                x,y=orta_yol
+        
                 a,b=mid_way
                 
                 # daha fazla ayrıntı eklendi, artık topları teker teker seçebiliyor
