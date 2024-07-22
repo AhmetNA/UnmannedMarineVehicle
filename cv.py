@@ -82,7 +82,7 @@ def btnAuto():
     messagebox.showinfo("Bilgi", "Auto butonuna tıklandı")
 
 # Color limit
-color_limit = 500
+color_limit = 123
 
 # Butonları yerleştirme
 buton_metinleri = ["Batma", "Çıkma", "Sağ", "Sol", "İleri", "Geri", "Kamera", "Reset", "Arm", "Disarm", "Stabilize", "Auto"]
@@ -248,16 +248,7 @@ def start_video_capture():
                     if yellow_in_range:
                         saw+=1
                         warning_txt += "sari gorunuyor "
-                    if saw != 0:
-                        if "kirmizi" not in warning_txt:
-                            warning_txt = "Kirmizi gozukmuyor sola don"
-                            turn_left()
-                        if "yesil" not in warning_txt:
-                            warning_txt = "yesil gorunmuyor saga don"
-                            turn_right()
-                    # Hiç bir topu görmüyorsa topu bulma fonksiyonu
-                    elif saw ==0:
-                        find_balls()
+                    
 
                     choose_way(red_center , green_center , yellow_center)
                     return warning_txt
@@ -277,7 +268,7 @@ def start_video_capture():
                     label_veri.imgtk = imgtk
                     label_veri.config(image=imgtk)
                     height, width, _ = frame.shape
-                    update_sonuc_panel(f"Görüntü Boyutu: {width}x{height}\n{color_detected}\n{warning_txt}\n{öneri1_metin}\n{öneri2_metin}\n{öneri3_metin}")
+                    update_sonuc_panel(f"Görüntü Boyutu: {width}x{height}\n{color_detected}\n")
 
                 master.after(0, update_gui)
                 out.write(frame)
