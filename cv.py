@@ -126,12 +126,15 @@ def find_mid_way(center1, center2):
     return (mid_x, mid_y)
 
 def turn_left():
+    update_sonuc_panel("Sola dön")
     pass
 
 def turn_right():
+    update_sonuc_panel("Sağa dön")
     pass
-def find_balls():
-    # Düz ilerle
+
+def go_straight():
+    update_sonuc_panel("Düz git")
     pass
 
 
@@ -219,35 +222,35 @@ def start_video_capture():
                     dist_green_red = 0
     # ORTA NOKTA BULMA VE YUVARLAK ÇİZME
                 # En uzun mesafeyi bul ve orta noktaya mor yuvarlak çiz
-                mid_way = (0, 0)
                 # Sari varsa 
-                if yellow_center != (0, 0):
+                mid_way = (0, 0)
+                if yellow_center != (0, 0) and (red_center != (0, 0) or green_center != (0, 0)):
                     if dist_red_yellow > dist_green_yellow:
                         mid_way = find_mid_way(red_center, yellow_center)
                     else:
                         mid_way = find_mid_way(green_center, yellow_center)
-                # Sari yoksa
-                else:
+                elif red_center != (0, 0) and green_center != (0, 0):
                     mid_way = find_mid_way(green_center, red_center)
-    
+                else:
+                    mid_way = (0, 0)
                 # Eğer orta nokta yoksa topları bul
-                if mid_way == (0, 0):
-                    find_balls()
-                # Eğer geçerli bir orta nokta varsa
-                else:  
-                    cv2.circle(frame, mid_way, 10, (255, 0, 255), -1)
-    # KAMERA ORTA NOKTASI İLE KONTROL
+                if mid_way != (0, 0):
+                    cv2.circle(frame , mid_way , 10 ,(255 ,0 ,255) , -1)
+
+    # KAMERA ORTA NOKTASI İLE DENKLEŞTİRME
                 # kamera orjini
                 orjin=(322,240)
 
                 cv2.circle(frame,orjin,5,(0,0,0),-1)
         
-                cam_x , cam_y =mid_way
+                mid_way_x , mid_way_y =mid_way
                 
-                if cam_x < orjin[0]:
+                if mid_way_x < orjin[0]-10:
                     turn_right()
-                elif cam_x > orjin[0]:
+                elif mid_way_x > orjin[0]+10:
                     turn_left()
+                else:
+                    go_straight()
                 
                 
                 # daha fazla ayrıntı eklendi, artık topları teker teker seçebiliyor
@@ -260,25 +263,13 @@ def start_video_capture():
                     warning_txt = "Cant see"
                     saw = 0
                     if red_in_range: 
-                        saw+=1
                         warning_txt = "kirmizi gorunuyor "
                     if green_in_range:
-                        saw+=1
                         warning_txt += "yesil gozukuyor "
                     if yellow_in_range:
-                        saw+=1
                         warning_txt += "sari gorunuyor "
                     
-
-                    choose_way(red_center , green_center , yellow_center)
                     return warning_txt
-                
-                def choose_way():
-                    # sari center yoksa kırmızı ve yeşilin ortasını bulup yuvarlak çiz
-
-
-                    #sari center varsa kırmızı ve sari , yeşil ve sari arasındaki farka göre yolu bul yuvarlak çiz
-                    pass        
                 
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 img = Image.fromarray(frame_rgb)
