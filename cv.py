@@ -125,7 +125,15 @@ def find_mid_way(center1, center2):
     mid_y = (center1[1] + center2[1]) // 2
     return (mid_x, mid_y)
 
-    
+def turn_left():
+    pass
+
+def turn_right():
+    pass
+def find_balls():
+    # Düz ilerle
+    pass
+
 
 def calculate_distance(point1, point2):
     return np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
@@ -191,45 +199,57 @@ def start_video_capture():
                     color_detected = f"Sari: {yellow_pixels} piksel"
                 else:
                     color_detected = "Renk Yok"
-
+    # KONTURLAR ARASI MESAFE
                 # Sarı ile kırmızı ve sarı ile yeşil arasındaki mesafeleri hesapla
                 if red_center != (0, 0) and yellow_center != (0, 0):
                     dist_red_yellow = calculate_distance(red_center, yellow_center)
                 else:
                     dist_red_yellow = 0
                 
-                # alttaki 4 satır gemi kendini ortalaması için  yapıldı
-                if green_center != (0, 0) and red_center != (0, 0):
-                    dist_green_red = calculate_distance(green_center, red_center)
-                else:
-                    dist_green_red = 0
-
+                # Yeşil ile sarı arasındaki mesafeyi hesapla
                 if green_center != (0, 0) and yellow_center != (0, 0):
                     dist_green_yellow = calculate_distance(green_center, yellow_center)
                 else:
                     dist_green_yellow = 0
 
-                # En uzun mesafeyi bul ve orta noktaya mor yuvarlak çiz
-                if dist_red_yellow > dist_green_yellow:
-                    mid_way = find_mid_way(red_center, yellow_center)
+                # Yeşil ile kırmızı ve yeşil ile sarı arasındaki mesafeleri hesapla
+                if green_center != (0, 0) and red_center != (0, 0):
+                    dist_green_red = calculate_distance(green_center, red_center)
                 else:
-                    mid_way = find_mid_way(green_center, yellow_center)
-                
-                if mid_way != (0, 0):  # Eğer geçerli bir orta nokta varsa
+                    dist_green_red = 0
+    # ORTA NOKTA BULMA VE YUVARLAK ÇİZME
+                # En uzun mesafeyi bul ve orta noktaya mor yuvarlak çiz
+                mid_way = (0, 0)
+                # Sari varsa 
+                if yellow_center != (0, 0):
+                    if dist_red_yellow > dist_green_yellow:
+                        mid_way = find_mid_way(red_center, yellow_center)
+                    else:
+                        mid_way = find_mid_way(green_center, yellow_center)
+                # Sari yoksa
+                else:
+                    mid_way = find_mid_way(green_center, red_center)
+    
+                # Eğer orta nokta yoksa topları bul
+                if mid_way == (0, 0):
+                    find_balls()
+                # Eğer geçerli bir orta nokta varsa
+                else:  
                     cv2.circle(frame, mid_way, 10, (255, 0, 255), -1)
-                
+    # KAMERA ORTA NOKTASI İLE KONTROL
                 # kamera orjini
                 orjin=(322,240)
+
                 cv2.circle(frame,orjin,5,(0,0,0),-1)
         
-                a,b=mid_way
-                def turn_left():
-                    pass
-                def turn_right():
-                    pass
-                def find_balls():
-                    # Düz ilerle
-                    pass
+                cam_x , cam_y =mid_way
+                
+                if cam_x < orjin[0]:
+                    turn_right()
+                elif cam_x > orjin[0]:
+                    turn_left()
+                
+                
                 # daha fazla ayrıntı eklendi, artık topları teker teker seçebiliyor
                 def check_balls(red_center, green_center, yellow_center, orjin, warning_txt):
                     orjin_x_range = range(orjin[0] - 300, orjin[0] + 300)
