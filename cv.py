@@ -100,7 +100,7 @@ def update_sonuc_panel(text):
     label = tk.Label(label_frame_sonuc, text=text)
     label.pack()
 
-def find_mid_of_counters(mask, color, frame):
+def find_center_of_counters(mask, color, frame):
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         max_contour = max(contours, key=cv2.contourArea)
@@ -190,9 +190,9 @@ def start_video_capture():
                 green_output = cv2.bitwise_and(frame, frame, mask=mask_green)
                 yellow_output = cv2.bitwise_and(frame, frame, mask=mask_yellow)
 
-                max_red_area, red_pixels, red_center = find_mid_of_counters(mask_red, (0, 0, 255), frame)
-                max_green_area, green_pixels, green_center = find_mid_of_counters(mask_green, (0, 255, 0), frame)
-                max_yellow_area, yellow_pixels, yellow_center = find_mid_of_counters(mask_yellow, (0, 255, 255), frame)
+                max_red_area, red_pixels, red_center = find_center_of_counters(mask_red, (0, 0, 255), frame)
+                max_green_area, green_pixels, green_center = find_center_of_counters(mask_green, (0, 255, 0), frame)
+                max_yellow_area, yellow_pixels, yellow_center = find_center_of_counters(mask_yellow, (0, 255, 255), frame)
                 
                 if max_red_area > color_limit:
                     color_detected = f"Kirmizi: {red_pixels} piksel"
@@ -202,24 +202,6 @@ def start_video_capture():
                     color_detected = f"Sari: {yellow_pixels} piksel"
                 else:
                     color_detected = "Renk Yok"
-    # KONTURLAR ARASI MESAFE
-                # Sarı ile kırmızı ve sarı ile yeşil arasındaki mesafeleri hesapla
-                if red_center != (0, 0) and yellow_center != (0, 0):
-                    dist_red_yellow = calculate_distance(red_center, yellow_center)
-                else:
-                    dist_red_yellow = 0
-                
-                # Yeşil ile sarı arasındaki mesafeyi hesapla
-                if green_center != (0, 0) and yellow_center != (0, 0):
-                    dist_green_yellow = calculate_distance(green_center, yellow_center)
-                else:
-                    dist_green_yellow = 0
-
-                # Yeşil ile kırmızı ve yeşil ile sarı arasındaki mesafeleri hesapla
-                if green_center != (0, 0) and red_center != (0, 0):
-                    dist_green_red = calculate_distance(green_center, red_center)
-                else:
-                    dist_green_red = 0
 
                 # GÖRDÜĞÜ FARKLI RENKTE TOP SAYISI
                 def check_balls(red_center, green_center, yellow_center, orjin):
@@ -243,7 +225,29 @@ def start_video_capture():
                     return ball_counter
                 
     # ORTA NOKTA BULMA VE YUVARLAK ÇİZME
-                # En uzun mesafeyi bul ve orta noktaya mor yuvarlak çiz
+                # En uzun mesafeyi bul ve orta noktaya mor yuvarlak çiz 
+        # KONTURLAR ARASI MESAFE
+                # Sarı ile kırmızı ve sarı ile yeşil arasındaki mesafeleri hesapla
+                def find_widest_distance(red_center, green_center, yellow_center):
+                    if red_center != (0, 0) and yellow_center != (0, 0):
+                        dist_red_yellow = calculate_distance(red_center, yellow_center)
+                    else:
+                        dist_red_yellow = 0
+                    
+                    # Yeşil ile sarı arasındaki mesafeyi hesapla
+                    if green_center != (0, 0) and yellow_center != (0, 0):
+                        dist_green_yellow = calculate_distance(green_center, yellow_center)
+                    else:
+                        dist_green_yellow = 0
+
+                    # Yeşil ile kırmızı ve yeşil ile sarı arasındaki mesafeleri hesapla
+                    if green_center != (0, 0) and red_center != (0, 0):
+                        dist_green_red = calculate_distance(green_center, red_center)
+                    else:
+                        dist_green_red = 0
+                    return dist_red_yellow, dist_green_yellow, dist_green_red
+                
+                dist_red_yellow, dist_green_yellow, dist_green_red = find_widest_distance(red_center, green_center, yellow_center)
                 # Sari varsa 
                 def find_ways():
                     # EĞER İKİ TOP GÖRÜYORSA YOL ÇİZ YOKSA DÜZ GİT
