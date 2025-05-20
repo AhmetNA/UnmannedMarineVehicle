@@ -1,2 +1,2 @@
-# Image_processing
-# This repository documents my learning journey in image processing
+# UnmannedMarineVehicle
+# This repository contains code for overcoming software-related obstacles in the development of an unmanned marine vehicle
